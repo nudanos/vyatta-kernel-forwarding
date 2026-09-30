@@ -1,0 +1,7 @@
+vyatta-kernel-forwarding (0.1) trixie; urgency=medium
+
+  * Initial release: provides vyatta-forwarding for systems that forward in
+    the Linux kernel, so configuration packages no longer require the DPDK
+    dataplane.
+
+ -- NuDanOS Maintainers <jon@fernandez.tech>  Wed, 30 Sep 2026 07:54:18 -0700

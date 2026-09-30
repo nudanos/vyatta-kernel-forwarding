@@ -1,0 +1,3 @@
+# Provides the vyatta-forwarding virtual package; it has no files of its own yet
+# (the no-dataplane system setup moves here with the script install, spec 4.5).
+vyatta-kernel-forwarding: empty-binary-package
