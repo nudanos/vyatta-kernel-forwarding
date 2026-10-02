@@ -1,3 +1,11 @@
+vyatta-kernel-forwarding (0.3) trixie; urgency=medium
+
+  * Depend on iptables, and select a legacy back end only once its
+    alternatives are registered: in the ISO build the postinst ran while
+    iptables was unpacked but not configured, and failed.
+
+ -- NuDanOS Maintainers <jon@fernandez.tech>  Fri, 02 Oct 2026 10:02:31 -0700
+
 vyatta-kernel-forwarding (0.2) trixie; urgency=medium
 
   * Name NICs with DANOS dataplane names (enp0s3 -> dp0s3) through a udev

@@ -10,7 +10,7 @@ Vcs-Browser: https://github.com/nudanos/vyatta-kernel-forwarding
 
 Package: vyatta-kernel-forwarding
 Architecture: all
-Depends: ${misc:Depends}, udev
+Depends: ${misc:Depends}, udev, iptables
 Provides: vyatta-forwarding
 Conflicts: vyatta-dataplane
 Description: NuDanOS forwarding in the Linux kernel (no DPDK dataplane)

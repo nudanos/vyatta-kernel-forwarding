@@ -4,8 +4,10 @@ case "$1" in
     configure)
         # DANOS used the legacy iptables/ebtables back ends (build-iso hook
         # 14-iptables-legacy); keep that for its scripts.
+        # The alternatives exist only once each package is configured; in a
+        # large transaction this can run while iptables is merely unpacked.
         for t in iptables ip6tables ebtables; do
-            if [ -x /usr/sbin/$t-legacy ]; then
+            if [ -x /usr/sbin/$t-legacy ] && update-alternatives --query $t >/dev/null 2>&1; then
                 update-alternatives --quiet --set $t /usr/sbin/$t-legacy
             fi
         done
