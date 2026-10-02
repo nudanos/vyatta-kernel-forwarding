@@ -2,7 +2,7 @@ Source: vyatta-kernel-forwarding
 Section: net
 Priority: optional
 Maintainer: NuDanOS Maintainers <jon@fernandez.tech>
-Build-Depends: debhelper-compat (= 13)
+Build-Depends: debhelper-compat (= 13), dh-yang
 Standards-Version: 4.7.2
 Rules-Requires-Root: no
 Vcs-Git: https://github.com/nudanos/vyatta-kernel-forwarding.git
@@ -10,10 +10,17 @@ Vcs-Browser: https://github.com/nudanos/vyatta-kernel-forwarding
 
 Package: vyatta-kernel-forwarding
 Architecture: all
-Depends: ${misc:Depends}
+Depends: ${misc:Depends}, udev
 Provides: vyatta-forwarding
 Conflicts: vyatta-dataplane
 Description: NuDanOS forwarding in the Linux kernel (no DPDK dataplane)
  Satisfies vyatta-forwarding for systems that forward packets in the Linux
  kernel instead of the DPDK dataplane. Firewall, NAT and QoS require the
  dataplane and are not available with this package.
+
+Package: vyatta-kernel-forwarding-deviations-v1-yang
+Architecture: all
+Depends: vyatta-kernel-forwarding (= ${binary:Version}), vyatta-interfaces-dataplane-v1-yang, ${misc:Depends}, ${yang:Depends}
+Description: NuDanOS kernel forwarding: refuse DPDK-only interface settings
+ YANG deviations that refuse dataplane interface settings only the DPDK
+ dataplane implements (CPU affinity) with a clear message.

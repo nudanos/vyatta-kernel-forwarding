@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+case "$1" in
+    remove|purge) rm -f /opt/vyatta/etc/kernel-forwarding ;;
+esac
+#DEBHELPER#
+exit 0

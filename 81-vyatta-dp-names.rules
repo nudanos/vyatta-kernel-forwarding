@@ -1,0 +1,4 @@
+# Name NICs with DANOS dataplane names (vyatta-kernel-forwarding), so the
+# "interfaces dataplane" configuration drives kernel netdevs. Runs after
+# 80-net-setup-link.rules; NICs without a PCI path name keep their name.
+SUBSYSTEM=="net", ACTION=="add", ENV{ID_NET_NAME_PATH}=="en*", PROGRAM="/usr/lib/vyatta-kernel-forwarding/dp-name $env{ID_NET_NAME_PATH}", RESULT=="?*", NAME="%c"

@@ -1,3 +1,17 @@
+vyatta-kernel-forwarding (0.2) trixie; urgency=medium
+
+  * Name NICs with DANOS dataplane names (enp0s3 -> dp0s3) through a udev
+    rule and dp-name, and map the dp prefix to the dataplane interface type
+    in /opt/vyatta/etc/netdevice.d.
+  * New binary vyatta-kernel-forwarding-deviations-v1-yang: refuse the
+    DPDK-only cpu-affinity, receive-cpu-affinity and transmit-cpu-affinity
+    settings at commit with a message naming the cause.
+  * postinst selects the legacy iptables/ip6tables/ebtables back ends
+    (DANOS build-iso hook 14-iptables-legacy) and writes the marker file
+    /opt/vyatta/etc/kernel-forwarding; postrm removes it.
+
+ -- NuDanOS Maintainers <jon@fernandez.tech>  Fri, 02 Oct 2026 08:24:16 -0700
+
 vyatta-kernel-forwarding (0.1) trixie; urgency=medium
 
   * Initial release: provides vyatta-forwarding for systems that forward in

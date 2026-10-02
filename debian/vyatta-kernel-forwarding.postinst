@@ -1,0 +1,19 @@
+#!/bin/sh
+set -e
+case "$1" in
+    configure)
+        # DANOS used the legacy iptables/ebtables back ends (build-iso hook
+        # 14-iptables-legacy); keep that for its scripts.
+        for t in iptables ip6tables ebtables; do
+            if [ -x /usr/sbin/$t-legacy ]; then
+                update-alternatives --quiet --set $t /usr/sbin/$t-legacy
+            fi
+        done
+        # Marker for scripts that behave differently without the DPDK
+        # dataplane (vyatta-bridge.pl keeps kernel flooding on).
+        mkdir -p /opt/vyatta/etc
+        : > /opt/vyatta/etc/kernel-forwarding
+        ;;
+esac
+#DEBHELPER#
+exit 0
