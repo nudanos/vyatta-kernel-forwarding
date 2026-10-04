@@ -1,3 +1,10 @@
+vyatta-kernel-forwarding (0.4) trixie; urgency=medium
+
+  * dp-name: print only names the dataplane-ifname YANG accepts; np, v and
+    u (USB) names keep their kernel name
+
+ -- NuDanOS Maintainers <jon@fernandez.tech>  Sat, 03 Oct 2026 19:56:41 -0700
+
 vyatta-kernel-forwarding (0.3) trixie; urgency=medium
 
   * Depend on iptables, and select a legacy back end only once its
