@@ -2,6 +2,10 @@ vyatta-kernel-forwarding (0.4) trixie; urgency=medium
 
   * dp-name: print only names the dataplane-ifname YANG accepts; np, v and
     u (USB) names keep their kernel name
+  * Deviations: refuse forced speed and duplex, and received-GARP control,
+    which only the DPDK dataplane applies (they were silently ignored)
+  * Install dpdk-required under the names of vplane-config's op scripts, so
+    show/monitor dataplane say why they cannot run; Conflicts: vplane-config
 
  -- NuDanOS Maintainers <jon@fernandez.tech>  Sat, 03 Oct 2026 19:56:41 -0700
 

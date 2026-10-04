@@ -1,0 +1,10 @@
+usr/lib/vyatta-kernel-forwarding/dpdk-required opt/vyatta/bin/nbr-res-flush.pl
+usr/lib/vyatta-kernel-forwarding/dpdk-required opt/vyatta/bin/vplane-arp
+usr/lib/vyatta-kernel-forwarding/dpdk-required opt/vyatta/bin/vplane-gre.pl
+usr/lib/vyatta-kernel-forwarding/dpdk-required opt/vyatta/bin/vplane-ifconfig.pl
+usr/lib/vyatta-kernel-forwarding/dpdk-required opt/vyatta/bin/vplane-monitor-cmd.pl
+usr/lib/vyatta-kernel-forwarding/dpdk-required opt/vyatta/bin/vplane-monitor.pl
+usr/lib/vyatta-kernel-forwarding/dpdk-required opt/vyatta/bin/vplane-nd.pl
+usr/lib/vyatta-kernel-forwarding/dpdk-required opt/vyatta/bin/vplane-route.pl
+usr/lib/vyatta-kernel-forwarding/dpdk-required opt/vyatta/bin/vplane-show-memory.pl
+usr/lib/vyatta-kernel-forwarding/dpdk-required opt/vyatta/bin/vplane-statistics.pl

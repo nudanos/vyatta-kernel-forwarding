@@ -12,7 +12,7 @@ Package: vyatta-kernel-forwarding
 Architecture: all
 Depends: ${misc:Depends}, udev, iptables
 Provides: vyatta-forwarding
-Conflicts: vyatta-dataplane
+Conflicts: vyatta-dataplane, vplane-config
 Description: NuDanOS forwarding in the Linux kernel (no DPDK dataplane)
  Satisfies vyatta-forwarding for systems that forward packets in the Linux
  kernel instead of the DPDK dataplane. Firewall, NAT and QoS require the
@@ -23,4 +23,5 @@ Architecture: all
 Depends: vyatta-kernel-forwarding (= ${binary:Version}), vyatta-interfaces-dataplane-v1-yang, ${misc:Depends}, ${yang:Depends}
 Description: NuDanOS kernel forwarding: refuse DPDK-only interface settings
  YANG deviations that refuse dataplane interface settings only the DPDK
- dataplane implements (CPU affinity) with a clear message.
+ dataplane implements (CPU affinity, forced speed and duplex, received
+ GARP control) with a clear message.
