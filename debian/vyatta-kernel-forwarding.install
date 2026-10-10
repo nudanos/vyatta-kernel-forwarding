@@ -2,3 +2,6 @@ dp-name usr/lib/vyatta-kernel-forwarding
 81-vyatta-dp-names.rules usr/lib/udev/rules.d
 netdevice.d/kernel-forwarding opt/vyatta/etc/netdevice.d
 dpdk-required usr/lib/vyatta-kernel-forwarding
+boot-config.d/50-dpdk-set-aside opt/vyatta/etc/boot-config.d
+dpdk-only-paths usr/share/vyatta-kernel-forwarding
+update-motd.d/60-dpdk-set-aside etc/update-motd.d

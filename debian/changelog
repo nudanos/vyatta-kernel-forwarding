@@ -1,3 +1,14 @@
+vyatta-kernel-forwarding (0.5) trixie; urgency=medium
+
+  * Set aside DPDK-only settings of a DANOS 2105 boot configuration:
+    boot-config.d/50-dpdk-set-aside removes the nodes listed in
+    dpdk-only-paths before the configuration is loaded, keeps the original
+    as config.boot.2105-original and the removed nodes in
+    config.boot.dpdk-only; update-motd.d/60-dpdk-set-aside shows a notice
+    while that file exists.
+
+ -- NuDanOS Maintainers <jon@fernandez.tech>  Sat, 10 Oct 2026 04:08:36 -0700
+
 vyatta-kernel-forwarding (0.4) trixie; urgency=medium
 
   * dp-name: print only names the dataplane-ifname YANG accepts; np, v and

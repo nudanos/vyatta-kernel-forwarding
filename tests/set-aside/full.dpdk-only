@@ -1,0 +1,13 @@
+interfaces {
+	dataplane dp0s3 {
+		cpu-affinity 1
+		speed 100m
+	}
+}
+security {
+	firewall {
+		name OUT {
+			default-action drop
+		}
+	}
+}

@@ -1,0 +1,183 @@
+#!/usr/bin/perl
+# SPDX-License-Identifier: GPL-2.0-only
+# Copyright (c) 2026, NuDanOS.
+#
+# 50-dpdk-set-aside <config.boot>
+#
+# Boot-config hook (vyatta-boot-config-loader runs it before loading the
+# boot configuration). A DANOS 2105 configuration can hold settings only
+# the DPDK dataplane implements; NuDanOS 1.0 forwards in the kernel, and one
+# such node would make the whole load fail. This removes the nodes matching
+# dpdk-only-paths, keeps the original once as config.boot.2105-original,
+# writes what it removed to config.boot.dpdk-only (config syntax) and logs
+# each path. With nothing to remove the file is left untouched.
+use strict;
+use warnings;
+use File::Basename qw(dirname);
+use File::Temp qw(tempfile);
+
+my $boot = shift or die "usage: $0 <config.boot>\n";
+my $paths_file = $ENV{SET_ASIDE_PATHS}
+  // '/usr/share/vyatta-kernel-forwarding/dpdk-only-paths';
+my $logger = $ENV{SET_ASIDE_LOGGER} // 'logger';
+
+# patterns: [ [names...], value-that-must-differ or undef ]
+my @patterns;
+{
+    open my $fh, '<', $paths_file or die "$paths_file: $!\n";
+    while (<$fh>) {
+        next if /^\s*(#|$)/;
+        my @p = split;
+        my $not = $p[-1] =~ /^!(.*)$/ ? ( pop(@p), $1 )[1] : undef;
+        push @patterns, [ \@p, $not ];
+    }
+}
+
+my $quoted = qr/"(?:[^"\\]|\\.)*"/;
+
+sub words {
+    my ($s) = @_;
+    my @w = $s =~ /($quoted|\S+)/g;
+    s/^"(.*)"$/$1/s for @w;
+    return @w;
+}
+
+sub match {
+    my ( $p, @path ) = @_;
+    return 0 unless @$p == @path;
+    for my $i ( 0 .. $#$p ) {
+        return 0 unless $p->[$i] eq '*' || $p->[$i] eq $path[$i];
+    }
+    return 1;
+}
+
+# a block at @path (its own names last, $own of them) is removed when a
+# pattern without a value condition names it or one of its own prefixes
+sub block_matches {
+    my ( $own, @path ) = @_;
+    for my $k ( @path - $own + 1 .. @path ) {
+        for (@patterns) {
+            return 1 if !defined $_->[1] && match( $_->[0], @path[ 0 .. $k - 1 ] );
+        }
+    }
+    return 0;
+}
+
+sub leaf_matches {
+    my ( $value, @path ) = @_;
+    for (@patterns) {
+        next unless match( $_->[0], @path );
+        return 1 if !defined $_->[1] || $value ne $_->[1];
+    }
+    return 0;
+}
+
+open my $in, '<', $boot or die "$boot: $!\n";
+my @lines = <$in>;
+close $in;
+
+my ( @out, @stack, @removed, $cur, $in_comment );
+for my $line (@lines) {
+    my $t = $line;
+    $t =~ s/^\s+|\s+$//g;
+
+    # comment lines, possibly spanning lines, are never configuration
+    if ( $in_comment || $t =~ m{^/\*} ) {
+        $in_comment = $t !~ m{\*/};
+        push @{ $cur ? $cur->{lines} : \@out }, $line;
+        next;
+    }
+    ( my $u = $t ) =~ s/$quoted/Q/g;    # braces inside quotes do not count
+    my $opens  = $u =~ /\{$/;
+    my $closes = $u =~ /^\}/;
+
+    if ($cur) {    # inside a removed block
+        push @{ $cur->{lines} }, $line;
+        $cur->{depth}++ if $opens;
+        $cur->{depth}-- if $closes;
+        undef $cur if $cur->{depth} == 0;
+        next;
+    }
+    if ($opens) {
+        ( my $head = $t ) =~ s/\s*\{$//;
+        my @tok  = words($head);
+        my @path = ( ( map { @{ $_->{names} } } @stack ), @tok );
+        if ( block_matches( scalar @tok, @path ) ) {
+            push @removed, { anc => [ map { $_->{head} } @stack ], lines => [$line],
+                depth => 1, path => "@path" };
+            $cur = $removed[-1];
+            next;
+        }
+        push @stack, { names => \@tok, head => $head };
+    } elsif ($closes) {
+        pop @stack;
+    } elsif ( length $t ) {
+        my ( $name, @value ) = words($t);
+        my @path = ( ( map { @{ $_->{names} } } @stack ), $name );
+        if ( leaf_matches( "@value", @path ) ) {
+            push @removed,
+              { anc => [ map { $_->{head} } @stack ], lines => [$line], path => "@path" };
+            next;
+        }
+    }
+    push @out, $line;
+}
+
+exit 0 unless @removed;
+
+# config.boot.dpdk-only: the removed nodes under their ancestors, merged
+my $root = { seq => [], kid => {} };
+for my $r (@removed) {
+    my $n = $root;
+    for my $h ( @{ $r->{anc} } ) {
+        unless ( $n->{kid}{$h} ) {
+            $n->{kid}{$h} = { seq => [], kid => {} };
+            push @{ $n->{seq} }, [ kid => $h ];
+        }
+        $n = $n->{kid}{$h};
+    }
+    push @{ $n->{seq} }, [ lines => $r->{lines} ];
+}
+
+sub emit {
+    my ( $n, $d ) = @_;
+    my $s = '';
+    for my $e ( @{ $n->{seq} } ) {
+        if ( $e->[0] eq 'kid' ) {
+            $s .= "\t" x $d . "$e->[1] {\n" . emit( $n->{kid}{ $e->[1] }, $d + 1 ) . "\t" x $d . "}\n";
+        } else {
+            $s .= join '', @{ $e->[1] };
+        }
+    }
+    return $s;
+}
+
+my $dir = dirname($boot);
+my @st  = stat $boot or die "$boot: $!\n";
+
+sub write_like_boot {
+    my ( $path, $content, $mode ) = @_;
+    my ( $fh, $tmp ) = tempfile( '.set-aside-XXXXXX', DIR => $dir );
+    print $fh $content or die "write $tmp: $!\n";
+    close $fh or die "close $tmp: $!\n";
+    chmod $st[2] & 07777, $tmp;
+    chown $st[4], $st[5], $tmp;    # as root at boot; harmless otherwise
+    rename $tmp, $path or die "rename $tmp to $path: $!\n";
+}
+
+my $original = "$dir/config.boot.2105-original";
+write_like_boot( $original, join( '', @lines ) ) unless -e $original;
+
+my $aside = "$dir/config.boot.dpdk-only";
+if ( -e $aside ) {
+    open my $fh, '>>', $aside or die "$aside: $!\n";
+    print $fh emit( $root, 0 );
+    close $fh;
+} else {
+    write_like_boot( $aside, emit( $root, 0 ) );
+}
+
+write_like_boot( $boot, join( '', @out ) );
+
+system( $logger, '-t', 'dpdk-set-aside', $_->{path} ) for @removed;
+exit 0;
