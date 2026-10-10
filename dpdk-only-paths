@@ -8,6 +8,9 @@
 
 # DPDK features with no kernel-dataplane implementation in 1.0
 security firewall
+# an interface's firewall binding (load drops it silently on NuDanOS)
+interfaces * * firewall
+interfaces * * vif * firewall
 service nat
 policy qos
 

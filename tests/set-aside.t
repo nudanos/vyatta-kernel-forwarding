@@ -75,6 +75,16 @@ sub run_hook {
     is( slurp($boot), "security {\n}\nsystem {\n\thost-name r1\n}\n", 'no footer: firewall removed, rest kept' );
 }
 
+# an interface's firewall binding goes with the firewall (2105's sampler:
+# NuDanOS silently dropped it on load)
+{
+    my ( $dir, $boot, $logged ) = run_hook('firewall');
+    is( slurp($boot),
+        "interfaces {\n\tdataplane dp0s3 {\n\t}\n\tdataplane dp0s10 {\n\t\taddress 10.0.2.15/24\n\t}\n\tloopback lo\n}\nsecurity {\n}\n",
+        'interface firewall binding removed with the firewall' );
+    like( $logged, qr/^interfaces dataplane dp0s3 firewall$/m, 'binding logged' );
+}
+
 # motd notice
 {
     my $dir = tempdir( CLEANUP => 1 );
