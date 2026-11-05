@@ -13,11 +13,9 @@ interfaces {
 	}
 }
 /* a comment the operator wrote */
-security {
-	firewall {
-		name OUT {
-			default-action drop
-		}
+policy {
+	qos {
+		name LIMIT
 	}
 }
 service {

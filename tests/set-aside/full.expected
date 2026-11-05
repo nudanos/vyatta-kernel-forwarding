@@ -11,7 +11,7 @@ interfaces {
 	}
 }
 /* a comment the operator wrote */
-security {
+policy {
 }
 service {
 	ssh {

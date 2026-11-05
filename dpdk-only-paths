@@ -6,7 +6,8 @@
 # DPDK-only package (distro/docs/kernel-forwarding.md) whose configuration
 # the following lines cover; tests/set-aside-consistency.t checks both.
 
-# DPDK features with no kernel-dataplane implementation in 1.0
+# DPDK features with no kernel-dataplane implementation in 1.0. Firewall
+# and NAT are detected separately as a safety refusal before any removal.
 security firewall
 # an interface's firewall binding (load drops it silently on NuDanOS)
 interfaces * * firewall

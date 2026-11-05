@@ -4,4 +4,6 @@ netdevice.d/kernel-forwarding opt/vyatta/etc/netdevice.d
 dpdk-required usr/lib/vyatta-kernel-forwarding
 boot-config.d/50-dpdk-set-aside opt/vyatta/etc/boot-config.d
 dpdk-only-paths usr/share/vyatta-kernel-forwarding
+policy-guard usr/lib/vyatta-kernel-forwarding
+systemd/system-configure.service.d/50-policy-migration.conf usr/lib/systemd/system/system-configure.service.d
 update-motd.d/60-dpdk-set-aside etc/update-motd.d

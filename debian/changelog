@@ -1,3 +1,12 @@
+vyatta-kernel-forwarding (0.7) trixie; urgency=medium
+
+  * Preserve and refuse legacy firewall and NAT configurations, including
+    policy already set aside by an earlier release.
+  * Block routed and bridged transit before the boot load, keeping local
+    traffic available for recovery. Require the matching boot-loader contract.
+
+ -- NuDanOS Maintainers <jon@fernandez.tech>  Thu, 05 Nov 2026 16:06:11 +0000
+
 vyatta-kernel-forwarding (0.6) trixie; urgency=medium
 
   * dpdk-only-paths: set aside an interface's firewall binding with the

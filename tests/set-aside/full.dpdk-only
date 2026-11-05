@@ -4,10 +4,8 @@ interfaces {
 		speed 100m
 	}
 }
-security {
-	firewall {
-		name OUT {
-			default-action drop
-		}
+policy {
+	qos {
+		name LIMIT
 	}
 }
